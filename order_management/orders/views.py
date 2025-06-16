@@ -1,0 +1,67 @@
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import Order, Product
+from django.http import HttpResponse
+
+def order_form(request):
+    products = Product.objects.all()
+    if request.method == 'POST':
+        customer_name = request.POST.get('customer_name')
+        customer_id = request.POST.get('customer_id')
+        quantity = request.POST.get('quantity')
+        product_id = request.POST.get('product')
+        user_email = request.POST.get('user_email')
+        
+        product = Product.objects.get(id=product_id)
+        product_cost = product.cost * int(quantity)
+        
+        order = Order.objects.create(
+            customer_name=customer_name,
+            customer_id=customer_id,
+            quantity=quantity,
+            product=product,
+            product_cost=product_cost,
+            user_email=user_email,
+            status='Order Placed'
+        )
+        
+        # Send email to warehouse
+        subject = f'New Order #{order.id}'
+        message = f"""
+        New Order Details:
+        Customer Name: {customer_name}
+        Customer ID: {customer_id}
+        Product: {product.name}
+        Quantity: {quantity}
+        Total Cost: {product_cost}
+        User Email: {user_email}
+        
+        <a href="http://localhost:8000/order/{order.id}/confirm/">Confirm Order</a>
+        """
+        send_mail(
+            subject,
+            '',
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.WAREHOUSE_EMAIL],
+            html_message=message,
+        )
+        
+        return HttpResponse("Order placed successfully! Warehouse has been notified.")
+    
+    return render(request, 'orders/order_form.html', {'products': products})
+
+def confirm_order(request, order_id):
+    order = Order.objects.get(id=order_id)
+    order.status = 'Confirmed'
+    order.save()
+    
+    # Send confirmation email to user
+    send_mail(
+        f'Order #{order.id} Confirmed',
+        f'Your order #{order.id} is ready to dispatch.',
+        settings.DEFAULT_FROM_EMAIL,
+        [order.user_email],
+    )
+    
+    return HttpResponse("Order confirmed and user notified.")
