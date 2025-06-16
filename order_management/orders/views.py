@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Order, Product
-from django.http import HttpResponse
 
 def order_form(request):
     products = Product.objects.all()
@@ -47,21 +46,36 @@ def order_form(request):
             html_message=message,
         )
         
-        return HttpResponse("Order placed successfully! Warehouse has been notified.")
+        # Pass success message to template for SweetAlert
+        return render(request, 'orders/order_form.html', {
+            'products': products,
+            'message': 'Order placed successfully! Warehouse has been notified.'
+        })
     
     return render(request, 'orders/order_form.html', {'products': products})
 
 def confirm_order(request, order_id):
-    order = Order.objects.get(id=order_id)
-    order.status = 'Confirmed'
-    order.save()
-    
-    # Send confirmation email to user
-    send_mail(
-        f'Order #{order.id} Confirmed',
-        f'Your order #{order.id} is ready to dispatch.',
-        settings.DEFAULT_FROM_EMAIL,
-        [order.user_email],
-    )
-    
-    return HttpResponse("Order confirmed and user notified.")
+    try:
+        order = Order.objects.get(id=order_id)
+        order.status = 'Confirmed'
+        order.save()
+        
+        # Send confirmation email to user
+        send_mail(
+            f'Order #{order.id} Confirmed',
+            f'Your order #{order.id} is ready to dispatch.',
+            settings.DEFAULT_FROM_EMAIL,
+            [order.user_email],
+        )
+        
+        # Pass success message to template for SweetAlert
+        return render(request, 'orders/order_form.html', {
+            'products': Product.objects.all(),
+            'message': 'Order confirmed and user notified.'
+        })
+    except Order.DoesNotExist:
+        # Handle invalid order ID
+        return render(request, 'orders/order_form.html', {
+            'products': Product.objects.all(),
+            'message': 'Error: Order not found.'
+        })

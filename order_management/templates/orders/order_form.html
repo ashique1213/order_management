@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Place Order</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
@@ -53,5 +54,23 @@
             </div>
         </form>
     </div>
+
+    {% if message %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: '{{ message }}',
+                icon: '{{ message }}',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4f46e5'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to order form
+                    window.location.href = '/';
+                }
+            });
+        });
+    </script>
+    {% endif %}
 </body>
 </html>
