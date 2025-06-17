@@ -24,16 +24,16 @@ def check_emails():
         mail.select('INBOX')
         logger.info("Selected INBOX")
         
-        # Search for emails from warehouse
-        logger.debug("Searching for emails from: %s", settings.WAREHOUSE_EMAIL)
-        result, data = mail.search(None, f'FROM {settings.WAREHOUSE_EMAIL}')
+        # Search for unread emails from warehouse
+        logger.debug("Searching for unread emails from: %s", settings.WAREHOUSE_EMAIL)
+        result, data = mail.search(None, f'FROM {settings.WAREHOUSE_EMAIL} UNSEEN')
         if result != 'OK':
             logger.error("Failed to search emails: %s", result)
             mail.logout()
             return
         
         email_count = len(data[0].split())
-        logger.info("Found %d emails from warehouse", email_count)
+        logger.info("Found %d unread emails from warehouse", email_count)
         
         for num in data[0].split():
             logger.debug("Fetching email number: %s", num)
@@ -75,13 +75,26 @@ def check_emails():
                                 [order.user_email],
                             )
                             logger.info("Sent confirmation email to %s", order.user_email)
+                            
+                            # Mark email as read
+                            logger.debug("Marking email %s as read", num)
+                            mail.store(num, '+FLAGS', '\\Seen')
+                            logger.info("Email %s marked as read", num)
+                            
                         except Order.DoesNotExist:
                             logger.warning("Order %s not found", order_id)
+                            # Still mark as read to avoid reprocessing
+                            mail.store(num, '+FLAGS', '\\Seen')
+                            logger.info("Email %s marked as read despite order not found", num)
                             continue
             else:
                 logger.debug("Email subject does not contain confirmation keywords")
+                # Mark non-matching emails as read to avoid reprocessing
+                mail.store(num, '+FLAGS', '\\Seen')
+                logger.info("Email %s marked as read (no keywords)", num)
         
-        # Logout
+        # Commit changes and logout
+        mail.expunge()
         mail.logout()
         logger.info("Logged out from email server")
         

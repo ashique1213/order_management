@@ -27,16 +27,17 @@ def order_form(request):
         
         # Send email to warehouse
         subject = f'New Order #{order.id}'
+        confirm_url = request.build_absolute_uri(f"/order/{order.id}/confirm/")
         message = f"""
-        New Order Details:
-        Customer Name: {customer_name}
-        Customer ID: {customer_id}
-        Product: {product.name}
-        Quantity: {quantity}
-        Total Cost: {product_cost}
-        User Email: {user_email}
-        
-        <a href="http://localhost:8000/order/{order.id}/confirm/">Confirm Order</a>
+        New Order Details:<br>
+        Customer Name: {customer_name}<br>
+        Customer ID: {customer_id}<br>
+        Product: {product.name}<br>
+        Quantity: {quantity}<br>
+        Total Cost: {product_cost}<br>
+        User Email: {user_email}<br><br>
+
+        <a href="{confirm_url}">Confirm Order</a>
         """
         send_mail(
             subject,
