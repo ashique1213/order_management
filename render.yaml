@@ -115,7 +115,8 @@ databases:
     region: oregon
     plan: free
 
-redis:
-  - name: celery_redis
+services:
+  - type: redis
+    name: celery_redis
     region: oregon
     plan: free
