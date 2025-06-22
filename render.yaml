@@ -112,6 +112,7 @@ services:
     name: celery_redis
     region: oregon
     plan: free
+    ipAllowList: []
 
 databases:
   - name: order_management_db
