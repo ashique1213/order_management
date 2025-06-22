@@ -28,13 +28,13 @@ services:
       - key: EMAIL_USE_TLS
         value: True
       - key: EMAIL_HOST_USER
-        value: ashiqueash1215@gmail.com
+        value: DEFAULT_FROM_EMAIL
       - key: EMAIL_HOST_PASSWORD
-        value: imzr cnzm pclj tdjb
+        value: EMAIL_HOST_PASSWORD
       - key: DEFAULT_FROM_EMAIL
-        value: ashiqueash1215@gmail.com
+        value: DEFAULT_FROM_EMAIL
       - key: WAREHOUSE_EMAIL
-        value: muhammedashique1213@gmail.com
+        value: WAREHOUSE_EMAIL
       - key: CELERY_BROKER_URL
         fromService:
           type: redis
@@ -75,12 +75,12 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: EMAIL_HOST_USER
-        value: ashiqueash1215@gmail.com
+        value: DEFAULT_FROM_EMAIL
       - key: EMAIL_HOST_PASSWORD
-        value: imzr cnzm pclj tdjb
+        value: EMAIL_HOST_PASSWORD
       - key: WAREHOUSE_EMAIL
-        value: muhammedashique1213@gmail.com
-
+        value: WAREHOUSE_EMAIL
+  
   - type: worker
     name: celery-beat
     env: python
