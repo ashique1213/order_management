@@ -1,0 +1,121 @@
+services:
+  - type: web
+    name: django-order-management
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate
+      python manage.py collectstatic --noinput
+      python manage.py populate_products
+    startCommand: gunicorn order_management.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False 
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: order_management_db
+          property: connectionString
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USE_TLS
+        value: True
+      - key: EMAIL_HOST_USER
+        value: ashiqueash1215@gmail.com
+      - key: EMAIL_HOST_PASSWORD
+        value: imzr cnzm pclj tdjb
+      - key: DEFAULT_FROM_EMAIL
+        value: ashiqueash1215@gmail.com
+      - key: WAREHOUSE_EMAIL
+        value: muhammedashique1213@gmail.com
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: celery_redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: celery_redis
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+  - type: worker
+    name: celery-worker
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A order_management worker -l info --pool=solo
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: order_management_db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: celery_redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: celery_redis
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: EMAIL_HOST_USER
+        value: ashiqueash1215@gmail.com
+      - key: EMAIL_HOST_PASSWORD
+        value: imzr cnzm pclj tdjb
+      - key: WAREHOUSE_EMAIL
+        value: muhammedashique1213@gmail.com
+
+  - type: worker
+    name: celery-beat
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A order_management beat -l info
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: order_management_db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: celery_redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: celery_redis
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+databases:
+  - name: order_management_db
+    databaseName: order_management
+    user: order_management_user
+    region: oregon
+    plan: free
+
+redis:
+  - name: celery_redis
+    region: oregon
+    plan: free

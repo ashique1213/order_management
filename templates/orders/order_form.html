@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Place an Order</h1>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="customer_name" class="block text-sm font-medium text-gray-700">Customer Name</label>
+                <input type="text" id="customer_name" name="customer_name" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="customer_id" class="block text-sm font-medium text-gray-700">Customer ID</label>
+                <input type="text" id="customer_id" name="customer_id" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="product" class="block text-sm font-medium text-gray-700">Product</label>
+                <select id="product" name="product" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }} (${{ product.cost }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="user_email" class="block text-sm font-medium text-gray-700">User Email</label>
+                <input type="email" id="user_email" name="user_email" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            
+            <div>
+                <button type="submit"
+                        class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Submit Order
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if message %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: '{{ message }}',
+                icon: '{{ message }}',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4f46e5'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to order form
+                    window.location.href = '/';
+                }
+            });
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
