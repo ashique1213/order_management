@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: redis
     name: django-order-management
     env: python
     plan: free
@@ -115,8 +115,7 @@ databases:
     region: oregon
     plan: free
 
-services:
-  - type: redis
-    name: celery_redis
+redis:
+  - name: celery_redis
     region: oregon
     plan: free
