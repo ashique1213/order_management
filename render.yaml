@@ -1,5 +1,5 @@
 services:
-  - type: redis
+  - type: web
     name: django-order-management
     env: python
     plan: free
@@ -108,14 +108,14 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
 
+  - type: redis
+    name: celery_redis
+    region: oregon
+    plan: free
+
 databases:
   - name: order_management_db
     databaseName: order_management
     user: order_management_user
-    region: oregon
-    plan: free
-
-redis:
-  - name: celery_redis
     region: oregon
     plan: free
